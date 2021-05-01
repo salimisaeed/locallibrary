@@ -2,7 +2,7 @@
 
 {% block content %}
   {% for author in author_list %}
-   <h2> {{ author.last_name }} </h2>
+   <h2><a href = '{% url 'catalog:author_detail' author.id %}'>{{ author.last_name }}</a></h2>
 
    <p> Author Name : {{ author.first_name }}</p>
    <p> Author Last Name : {{ author.last_name }}</p>

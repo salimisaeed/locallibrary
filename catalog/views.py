@@ -6,8 +6,13 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 #from django.core.urlresolvers import reverse
+from django.urls import reverse
 import datetime
 from .forms import RenewBookForm
+#-----------------------------
+from django.views import generic
+from django.urls import reverse_lazy
+from .models import Author
 
 class Index(generic.TemplateView):
     template_name = "catalog/index.html"
@@ -45,12 +50,12 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
         return models.BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
 #####################################################################
 
-@permission_required('catalog.can_mark_returned')
+#@permission_required('catalog.can_mark_returned')
 def renew_book_librarian(request, pk):
     """
     View function for renewing a specific BookInstance by librarian
     """
-    book_inst=get_object_or_404(BookInstance, pk = pk)
+    book_inst=get_object_or_404(models.BookInstance, pk = pk)
 
     # If this is a POST request then process the Form data
     if request.method == 'POST':
@@ -74,6 +79,24 @@ def renew_book_librarian(request, pk):
 
     return render(request, 'catalog/book_renew_librarian.html', {'form': form, 'bookinst':book_inst})
 
+
+
+class AuthorCreate(generic.CreateView):
+    model = models.Author
+    fields = '__all__'
+    initial={'date_of_death':'05/01/2018',}
+
+class AuthorUpdate(generic.UpdateView):
+    model = models.Author
+    fields = ['first_name','last_name','date_of_birth','date_of_death']
+
+class AuthorDelete(generic.DeleteView):
+    model = models.Author
+    success_url = reverse_lazy('catalog:authors')
+
+class AuthorDetailView(generic.DetailView):
+    model = models.Author
+    template_name =  "catalog/author_detail.html"
 
 # def index(request):
 #     """
