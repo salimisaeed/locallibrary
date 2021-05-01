@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 from . import models
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class Index(generic.TemplateView):
     template_name = "catalog/index.html"
@@ -26,6 +27,16 @@ class  AuthorListView(generic.ListView):
     template_name = 'catalog/author_list.html'
 
 
+class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+    """
+    Generic class-based view listing books on loan to current user.
+    """
+    model = models.BookInstance
+    template_name ='catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return models.BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
 # def index(request):
 #     """
 #     View function for home page of site.
